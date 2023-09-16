@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "strict": true,
+    "outDir": "./dist",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "rootDir": "src"
+  },
+  "include": [
+    "src/**/*",
+  ],
+  "exclude": ["node_modules", "dist"]
+}

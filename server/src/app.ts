@@ -1,5 +1,6 @@
 import express, { Application, Request, Response } from "express";
 import { get_breadcrumbs } from "./utils/general.utils";
+import { fork } from "child_process";
 // import dgram from "dgram";
 
 const app: Application = express();
@@ -8,6 +9,12 @@ const app: Application = express();
 app.use((req, _, next) => {
   (req as any).breadcrumbs = get_breadcrumbs(req.originalUrl);
   next();
+});
+
+app.get("/api/dir", (_, res) => {
+  const childProcess = fork(__dirname + "/utils/dir.utils");
+  childProcess.send({ dir: process.cwd() });
+  childProcess.on("message", (message) => res.send(message));
 });
 
 app.get("/", (_: Request, res: Response) => {

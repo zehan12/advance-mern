@@ -1,6 +1,14 @@
 import express, { Application, Request, Response } from "express";
+import { get_breadcrumbs } from "./utils/general.utils";
+// import dgram from "dgram";
 
 const app: Application = express();
+
+// add breadcrumbs
+app.use((req, _, next) => {
+  (req as any).breadcrumbs = get_breadcrumbs(req.originalUrl);
+  next();
+});
 
 app.get("/", (_: Request, res: Response) => {
   res.end("backend");

@@ -1,6 +1,10 @@
 import express, { Application, Request, Response } from "express";
-import { get_breadcrumbs } from "./utils/general.utils";
+import swaggerUI from "swagger-ui-express";
 import { fork } from "child_process";
+
+import { get_breadcrumbs } from "./utils/general.utils";
+import docs from "./docs/swagger";
+
 // import dgram from "dgram";
 
 const app: Application = express();
@@ -10,6 +14,9 @@ app.use((req, _, next) => {
   (req as any).breadcrumbs = get_breadcrumbs(req.originalUrl);
   next();
 });
+
+app.use('/api/docs', swaggerUI.serve, swaggerUI.setup(docs));
+
 
 app.get("/api/dir", (_, res) => {
   const childProcess = fork(__dirname + "/utils/dir.utils");

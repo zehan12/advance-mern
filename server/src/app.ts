@@ -9,14 +9,19 @@ import docs from "./docs/swagger";
 
 const app: Application = express();
 
+// middlewares
+
+// Set Body parser, reading data from body into req.body
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 // add breadcrumbs
 app.use((req, _, next) => {
   (req as any).breadcrumbs = get_breadcrumbs(req.originalUrl);
   next();
 });
 
-app.use('/api/docs', swaggerUI.serve, swaggerUI.setup(docs));
-
+app.use("/api/docs", swaggerUI.serve, swaggerUI.setup(docs));
 
 app.get("/api/dir", (_, res) => {
   const childProcess = fork(__dirname + "/utils/dir.utils");

@@ -1,6 +1,7 @@
 import express, { Application, Request, Response } from "express";
 import swaggerUI from "swagger-ui-express";
 import hpp from "hpp";
+import xssShield from "xss-shield";
 import { fork } from "child_process";
 
 import { get_breadcrumbs } from "./utils/general.utils";
@@ -18,6 +19,10 @@ app.use(express.urlencoded({ extended: true }));
 
 // Protect against HTTP Parameter Pollution attacks
 app.use(hpp());
+
+// Sanitize untrusted HTML  ( to prevent XSS )
+const xss = xssShield.xssShield();
+app.use(xss);
 
 // Add breadcrumbs
 app.use((req, _, next) => {

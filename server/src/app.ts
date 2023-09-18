@@ -1,5 +1,6 @@
 import express, { Application, Request, Response } from "express";
 import swaggerUI from "swagger-ui-express";
+import hpp from "hpp";
 import { fork } from "child_process";
 
 import { get_breadcrumbs } from "./utils/general.utils";
@@ -9,18 +10,22 @@ import docs from "./docs/swagger";
 
 const app: Application = express();
 
-// middlewares
+// Middlewares ==>
 
 // Set Body parser, reading data from body into req.body
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// add breadcrumbs
+// Protect against HTTP Parameter Pollution attacks
+app.use(hpp());
+
+// Add breadcrumbs
 app.use((req, _, next) => {
   (req as any).breadcrumbs = get_breadcrumbs(req.originalUrl);
   next();
 });
 
+// Add Swagger UI
 app.use("/api/docs", swaggerUI.serve, swaggerUI.setup(docs));
 
 app.get("/api/dir", (_, res) => {

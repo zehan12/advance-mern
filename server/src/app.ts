@@ -2,6 +2,7 @@ import express, { Application, Request, Response } from "express";
 import swaggerUI from "swagger-ui-express";
 import hpp from "hpp";
 import xssShield from "xss-shield";
+import csrf from "csrf";
 import { fork } from "child_process";
 
 import { get_breadcrumbs } from "./utils/general.utils";
@@ -23,6 +24,18 @@ app.use(hpp());
 // Sanitize untrusted HTML  ( to prevent XSS )
 const xss = xssShield.xssShield();
 app.use(xss);
+
+// Middleware to generate and attach CSRF tokens to responses
+const tokens = new csrf();
+app.use((_, res, next) => {
+  const secret = tokens.secretSync(); // Generate a secret for the session
+  const token = tokens.create(secret); // Create a CSRF token
+  // Attach the token to a cookie
+  res.cookie("csrf-token", token, { httpOnly: true });
+  // Make the token available in templates (if using a view engine)
+  res.locals.csrfToken = token;
+  next();
+});
 
 // Add breadcrumbs
 app.use((req, _, next) => {

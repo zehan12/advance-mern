@@ -1,13 +1,14 @@
+// external
 import express, { Application, Request, Response } from "express";
 import swaggerUI from "swagger-ui-express";
 import hpp from "hpp";
 import xssShield from "xss-shield";
-import csrf from "csrf";
+
+// internal
 import { fork } from "child_process";
-
-import { get_breadcrumbs } from "./utils/general.utils";
 import docs from "./docs/swagger";
-
+import csurf from "./middleware/csrf.middleware";
+import { breadcrumbs } from "./middleware/breadcrumbs.middleware";
 // import dgram from "dgram";
 
 const app: Application = express();
@@ -22,26 +23,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(hpp());
 
 // Sanitize untrusted HTML  ( to prevent XSS )
-const xss = xssShield.xssShield();
-app.use(xss);
+app.use(xssShield.xssShield());
 
 // Middleware to generate and attach CSRF tokens to responses
-const tokens = new csrf();
-app.use((_, res, next) => {
-  const secret = tokens.secretSync(); // Generate a secret for the session
-  const token = tokens.create(secret); // Create a CSRF token
-  // Attach the token to a cookie
-  res.cookie("csrf-token", token, { httpOnly: true });
-  // Make the token available in templates (if using a view engine)
-  res.locals.csrfToken = token;
-  next();
-});
+app.use(csurf);
 
-// Add breadcrumbs
-app.use((req, _, next) => {
-  (req as any).breadcrumbs = get_breadcrumbs(req.originalUrl);
-  next();
-});
+// Middleware to add breadcrumbs to request body
+app.use(breadcrumbs);
 
 // Add Swagger UI
 app.use("/api/docs", swaggerUI.serve, swaggerUI.setup(docs));

@@ -7,8 +7,12 @@ import xssShield from "xss-shield";
 // internal
 import { fork } from "child_process";
 import docs from "./docs/swagger";
-import csurf from "./middleware/csrf.middleware";
-import { breadcrumbs } from "./middleware/breadcrumbs.middleware";
+import csurf from "./middlewares/csrf.middleware";
+import { breadcrumbs } from "./middlewares/breadcrumbs.middleware";
+import limiter from "./middlewares/rateLimiter.middleware";
+import { rateLimiterMiddleware } from "./middlewares/limiterFlexible.middleware";
+import config from "./config/config";
+import { PRODUCTION } from "./constants/general";
 // import dgram from "dgram";
 
 const app: Application = express();
@@ -27,6 +31,10 @@ app.use(xssShield.xssShield());
 
 // Middleware to generate and attach CSRF tokens to responses
 app.use(csurf);
+
+// Middleware to prevent DDOS attack
+app.use(limiter);
+if ( config.env === PRODUCTION ) app.use(rateLimiterMiddleware);
 
 // Middleware to add breadcrumbs to request body
 app.use(breadcrumbs);

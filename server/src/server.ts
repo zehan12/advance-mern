@@ -1,8 +1,11 @@
 import app from "./app";
 import config from "./config/config";
+import connectDB from "./config/db";
 import logger from "./config/logger";
 
 const port = config.port;
+
+connectDB();
 
 const server = app.listen(port, () => {
   logger.info(`

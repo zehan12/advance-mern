@@ -42,6 +42,9 @@ app.use(breadcrumbs);
 // Add Swagger UI
 app.use("/api/docs", swaggerUI.serve, swaggerUI.setup(docs));
 
+
+// Routes
+
 app.get("/api/dir", (_, res) => {
   const childProcess = fork(__dirname + "/utils/dir.utils");
   childProcess.send({ dir: process.cwd() });
@@ -51,6 +54,8 @@ app.get("/api/dir", (_, res) => {
 app.get("/", (_: Request, res: Response) => {
   res.end("backend");
 });
+
+// app.use("/api/v1/register", require("./routes/register"));
 
 app.get("^/$|/index(.html)?", (_: Request, res: Response) => {
   res.send("<body><h1>Hello From Backend</h1></body>");
